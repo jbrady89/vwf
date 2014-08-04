@@ -1665,6 +1665,8 @@
             // createProperty(), createMethod(), or createEvent() to create the field. Each
             // delegates to the models and views as above.
 
+            // Properties.
+
             nodeComponent.properties && Object.keys( nodeComponent.properties ).forEach( function( propertyName ) {  // TODO: setProperties should be adapted like this to be used here
                 var propertyValue = nodeComponent.properties[ propertyName ];
 
@@ -1693,6 +1695,8 @@
 
             } );
 
+            // Methods.
+
             nodeComponent.methods && Object.keys( nodeComponent.methods ).forEach( function( methodName ) {
                 var methodHandler = nodeComponent.methods[ methodName ];
 
@@ -1708,7 +1712,23 @@
 
             } );
 
-            // TODO: events
+            // Events.
+
+            nodeComponent.events && Object.keys( nodeComponent.events ).forEach( function( eventName ) {
+                var eventDescriptor = nodeComponent.events[ eventName ];
+
+                var creating = ! node.events.has( eventName );  // not defined on node or prototype
+
+                // Create or initialize the event.
+
+                if ( creating ) {
+                    vwf.createEvent( nodeID, eventName, eventDescriptor.parameters );
+                    vwf.setEvent( nodeID, eventName, eventDescriptor );
+                } else {
+                    vwf.setEvent( nodeID, eventName, eventDescriptor );
+                }  // TODO: delete when eventDescriptor === null in patch
+
+            } );
 
             // Restore kernel reentry.
 
@@ -1948,15 +1968,16 @@
 
             // Events.
 
-            // nodeComponent.events = {};  // TODO
+            var events = full || ! node.patchable ?
+                node.events.existing : node.events.changes;
 
-            // for ( var eventName in nodeComponent.events ) {
-            //     nodeComponent.events[eventName] === undefined &&
-            //         delete nodeComponent.events[eventName];
-            // }
-
-            // Object.keys( nodeComponent.events ).length ||
-            //     delete nodeComponent.events;
+            if ( events ) {
+                Object.keys( events ).forEach( function( eventName ) {
+                    nodeComponent.events = nodeComponent.events || {};
+                    nodeComponent.events[ eventName ] = this.getEvent( nodeID, eventName );
+                    patched = true;
+                }, this );
+            }
 
             // Restore kernel reentry.
 
