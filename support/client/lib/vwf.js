@@ -387,7 +387,10 @@
                     { library: "vwf/model/sound", active: false },
                     { library: "vwf/model/kineticjs", active: false },
                     { library: "vwf/model/mil-sym", active: false },
+<<<<<<< HEAD
                     { library: "vwf/model/heightmap", active: false },
+=======
+>>>>>>> FETCH_HEAD
                     { library: "vwf/adl/model/wires", active: true },
                     { library: "vwf/adl/model/jqueryui", active: true },
                     { library: "vwf/model/object", active: true }
@@ -495,7 +498,9 @@
                                     }
                                 }
                                 if(requireArray[libraryName].linkedLibraries) {
+console.info( "libraryName = " + libraryName );
                                     for(var i=0; i<requireArray[libraryName].linkedLibraries.length; i++) {
+console.info( "         linked libraryName = " + requireArray[libraryName].linkedLibraries[i] );
                                         requireArray[requireArray[libraryName].linkedLibraries[i]].active = true;
                                     }
                                 }
