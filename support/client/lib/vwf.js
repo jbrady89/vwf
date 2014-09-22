@@ -2457,9 +2457,21 @@ if ( ! childComponent.source ) {
                     async.forEach( Object.keys( childComponent.children || {} ), function( childName, each_callback_async /* ( err ) */ ) {
                         var childValue = childComponent.children[childName];
 
+if ( childName === "*" ) {
+    async.forEach( vwf.discoverChildren( childID, childName ), function( childDiscovery, callback ) {
+        vwf.createChild( childID, childDiscovery.name, childValue, undefined, function( childID ) /* async */ {  // TODO: add in original order from childComponent.children  // TODO: propagate childURI + fragment identifier to children of a URI component?
+            callback( undefined );
+        } );
+    }, function( err ) /* async */ {
+        each_callback_async( undefined );
+    } );
+} else {
+
                         vwf.createChild( childID, childName, childValue, undefined, function( childID ) /* async */ {  // TODO: add in original order from childComponent.children  // TODO: propagate childURI + fragment identifier to children of a URI component?
                             each_callback_async( undefined );
                         } );
+
+}
 
                     }, function( err ) /* async */ {
                         series_callback_async( err, undefined );

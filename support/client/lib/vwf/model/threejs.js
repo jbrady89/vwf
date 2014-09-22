@@ -120,6 +120,12 @@ define( [ "module", "vwf/model", "vwf/utility", "vwf/utility/color", "jquery" ],
 
                     discovery = "http://vwf.example.com/node3.vwf";
 
+                } else if ( childName === "*" ) {
+
+                    discovery = parentThree.children.map( function( childThree ) {
+                        return { name: childThree.name, prototype: discoveryFor( childThree ) };
+                    } );
+
                 } else {
 
                     matchedChild = undefined;
@@ -132,21 +138,26 @@ define( [ "module", "vwf/model", "vwf/utility", "vwf/utility/color", "jquery" ],
                     } );
 
                     if ( matchedChild ) {
-
-                        if ( matchedChild instanceof THREE.Camera ) {
-                            discovery = "http://vwf.example.com/camera.vwf";
-                        } else if ( matchedChild instanceof THREE.Light ) {
-                            discovery = "http://vwf.example.com/light.vwf";
-                        } else if ( matchedChild instanceof THREE.Mesh ) {
-                            discovery = "http://vwf.example.com/mesh.vwf";
-                        } else if ( matchedChild instanceof THREE.Object3D ) {
-                            discovery = "http://vwf.example.com/node3.vwf";
-                        } else if ( matchedChild instanceof THREE.Material ) {
-                            discovery = "http://vwf.example.com/material.vwf";
-                        }
-
+                        discovery = discoveryFor( matchedChild );
                     }
 
+                }
+
+
+            }
+
+            function discoveryFor( childThree ) {
+
+                if ( childThree instanceof THREE.Camera ) {
+                    return "http://vwf.example.com/camera.vwf";
+                } else if ( childThree instanceof THREE.Light ) {
+                    return "http://vwf.example.com/light.vwf";
+                } else if ( childThree instanceof THREE.Mesh ) {
+                    return "http://vwf.example.com/mesh.vwf";
+                } else if ( childThree instanceof THREE.Object3D ) {
+                    return "http://vwf.example.com/node3.vwf";
+                } else if ( childThree instanceof THREE.Material ) {
+                    return "http://vwf.example.com/material.vwf";
                 }
 
             }
