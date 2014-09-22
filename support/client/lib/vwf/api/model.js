@@ -21,6 +21,8 @@ define( function() {
 
     var exports = {
 
+        discoveringChildren: [ /* nodeID, childName, childSource, childType */ ],
+
         /// Description.
         /// 
         /// @function

@@ -98,6 +98,62 @@ define( [ "module", "vwf/model", "vwf/utility", "vwf/utility/color", "jquery" ],
 
         // == Model API ============================================================================
 
+        discoveringChildren: function( nodeID, childName, childSource, childType ) {
+
+            var discovery;
+
+            var parentNode = this.state.nodes[ nodeID ] || this.state.scenes[ nodeID ];
+            var parentThree = parentNode && ( parentNode.threeObject || parentNode.threeScene );
+            var matchedChild;
+
+            if ( ! nodeID ) {
+
+                if ( childType === "model/vnd.collada+xml" || childType === "model/vnd.osgjs+json+compressed" || childType === "model/x-threejs-morphanim+json" || childType === "model/x-threejs-skinned+json" ) {
+                    discovery = "http://vwf.example.com/scene.vwf";
+                } else if ( false ) {  // TODO: what if no source/type, but children are or will become node3?
+                    discovery = "http://vwf.example.com/scene.vwf";
+                }
+
+            } else if ( parentThree instanceof THREE.Object3D ) {
+
+                if ( childType === "model/vnd.collada+xml" || childType === "model/vnd.osgjs+json+compressed" || childType === "model/x-threejs-morphanim+json" || childType === "model/x-threejs-skinned+json" ) {
+
+                    discovery = "http://vwf.example.com/node3.vwf";
+
+                } else {
+
+                    matchedChild = undefined;
+
+                    parentThree.children.some( function( child ) {
+                        if ( child.name === childName ) {
+                            matchedChild = child;
+                            return true;
+                        }
+                    } );
+
+                    if ( matchedChild ) {
+
+                        if ( matchedChild instanceof THREE.Camera ) {
+                            discovery = "http://vwf.example.com/camera.vwf";
+                        } else if ( matchedChild instanceof THREE.Light ) {
+                            discovery = "http://vwf.example.com/light.vwf";
+                        } else if ( matchedChild instanceof THREE.Mesh ) {
+                            discovery = "http://vwf.example.com/mesh.vwf";
+                        } else if ( matchedChild instanceof THREE.Object3D ) {
+                            discovery = "http://vwf.example.com/node3.vwf";
+                        } else if ( matchedChild instanceof THREE.Material ) {
+                            discovery = "http://vwf.example.com/material.vwf";
+                        }
+
+                    }
+
+                }
+
+            }
+
+            return discovery;
+        },
+
         // -- creatingNode ------------------------------------------------------------------------
         
         creatingNode: function( nodeID, childID, childExtendsID, childImplementsIDs,

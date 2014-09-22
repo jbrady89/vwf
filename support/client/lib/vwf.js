@@ -1990,6 +1990,43 @@
             return hashi + ( hashp ? "." + hashp : "" ) + ( hashc ? "/" + hashc : "" );
         };
 
+        // -- discoverChildren ---------------------------------------------------------------------
+
+        this.discoverChildren = function( nodeID, childName, childSource, childType ) {
+
+            this.logger.debuggx( "discoverChildren", function() {
+                return [ nodeID, childName, JSON.stringify( loggableComponent( childComponent ) ), childURI ];
+            } );
+
+            var discoveredChildren = [];
+
+            this.models.forEach( function( model ) {
+
+                var discoveries = model.discoveringChildren &&
+                    model.discoveringChildren( nodeID, childName, childSource, childType );
+
+                if ( discoveries ) {
+                    discoveredChildren = discoveredChildren.concat( discoveries );
+                }
+
+            } );
+
+            discoveredChildren = discoveredChildren.map( function( discovery ) {
+
+                if ( typeof discovery === "string" ) {
+                    discovery = { prototype: discovery };
+                } else if ( typeof discovery.behaviors === "string" ) {
+                    discovery.behaviors = [ discovery.behaviors ];
+                }
+
+                return discovery;
+            } );
+
+            this.logger.debugu();
+
+            return discoveredChildren;
+        },
+
         // -- createChild --------------------------------------------------------------------------
 
         /// When we arrive here, we have a prototype node in hand (by way of its ID) and an object
@@ -2134,6 +2171,8 @@ if ( useLegacyID ) {  // TODO: fix static ID references and remove
 
                 function( series_callback_async /* ( err, results ) */ ) {
 
+                    var suggestedPrototypeID, suggestedBehaviorIDs, childDiscoveries = vwf.discoverChildren( nodeID, childName, childComponent.source, childComponent.type );
+
                     // Create the prototype and behavior nodes (or locate previously created
                     // instances).
 
@@ -2190,7 +2229,46 @@ if ( ! childComponent.source ) {
 
                         },
 
+                        function( parallel_callback_async /* ( err, results ) */ ) {
+
+                            if ( childDiscoveries.length && childDiscoveries[0].prototype ) {
+                                vwf.createNode( childDiscoveries[0].prototype, function( prototypeID ) /* async */ {
+                                    suggestedPrototypeID = prototypeID;
+                                    parallel_callback_async( undefined, undefined );
+                                } );
+                            } else {
+                                suggestedPrototypeID = undefined;
+                                parallel_callback_async( undefined, undefined );
+                            }
+
+                        },
+
+                        function( parallel_callback_async /* ( err, results ) */ ) {
+
+                            var behaviorComponents = childDiscoveries.length && childDiscoveries[0].behaviors ?
+                                childDiscoveries[0].behaviors : [];
+
+                            async.map( behaviorComponents, function( behaviorComponent, map_callback_async /* ( err, result ) */ ) {
+                                vwf.createNode( behaviorComponent, function( behaviorID ) /* async */ {
+                                    map_callback_async( undefined, behaviorID );
+                                } );
+                            }, function( err, behaviorIDs ) /* async */ {
+                                suggestedBehaviorIDs = behaviorIDs;
+                                parallel_callback_async( err, undefined );
+                            } );
+
+                        },
+
                     ], function( err, results ) /* async */ {
+
+                        // Upgrade prototype and add behaviors if the suggested prototype includes
+                        // the declared prototype in its prototype chain.
+
+                        if ( suggestedPrototypeID && vwf.prototypes( suggestedPrototypeID, true ).indexOf( childPrototypeID ) >= 0 ) {
+                            childPrototypeID = suggestedPrototypeID;
+                            childBehaviorIDs = suggestedBehaviorIDs.concat( childBehaviorIDs );
+                        }
+
                         series_callback_async( err, undefined );
                     } );
 
@@ -4499,18 +4577,18 @@ if ( ! childComponent.source ) {
 
             // Fill in the component type from the mime type if not provided.
 
-            if ( component.type && ! component.extends ) {  // TODO: load from a server configuration file
+            // if ( component.type && ! component.extends ) {  // TODO: load from a server configuration file
 
-                switch ( component.type ) {
-                    case "application/vnd.unity":
-                        component.extends = "http://vwf.example.com/scene.vwf";
-                        break;
-                    case "model/vnd.collada+xml":
-                        component.extends = "http://vwf.example.com/navscene.vwf";
-                        break;
-                }
+            //     switch ( component.type ) {
+            //         case "application/vnd.unity":
+            //             component.extends = "http://vwf.example.com/scene.vwf";
+            //             break;
+            //         case "model/vnd.collada+xml":
+            //             component.extends = "http://vwf.example.com/navscene.vwf";
+            //             break;
+            //     }
 
-            }
+            // }
 
             return component;
         };
