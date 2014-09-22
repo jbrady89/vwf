@@ -2457,9 +2457,22 @@ if ( ! childComponent.source ) {
                     async.forEach( Object.keys( childComponent.children || {} ), function( childName, each_callback_async /* ( err ) */ ) {
                         var childValue = childComponent.children[childName];
 
-if ( childName === "*" ) {
-    async.forEach( vwf.discoverChildren( childID, childName ), function( childDiscovery, callback ) {
-        vwf.createChild( childID, childDiscovery.name, childValue, undefined, function( childID ) /* async */ {  // TODO: add in original order from childComponent.children  // TODO: propagate childURI + fragment identifier to children of a URI component?
+var cv2;
+
+if ( childName === "*" || childName === "**" ) {
+    if ( childName === "**" ) {
+        if ( typeof childValue !== "object" ) {
+            cv2 = { extends: childValue, children: { "**": childValue } };
+        } else if ( ! childValue.children ) {
+            var cv2 = {}; io.util.merge( cv2, childValue );
+            cv2.children = { "**": childValue };
+        } else {
+            var cv2 = {}; io.util.merge( cv2, childValue );
+            cv2.children["**"] = childValue;
+        }
+    }
+    async.forEach( vwf.discoverChildren( childID, "*" ), function( childDiscovery, callback ) {
+        vwf.createChild( childID, childDiscovery.name, cv2 || childValue, undefined, function( childID ) /* async */ {  // TODO: add in original order from childComponent.children  // TODO: propagate childURI + fragment identifier to children of a URI component?
             callback( undefined );
         } );
     }, function( err ) /* async */ {
