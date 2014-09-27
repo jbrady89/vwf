@@ -3975,7 +3975,9 @@ if ( ! childComponent.source ) {
                     JSON.stringify( loggableIndexedValues( eventNodeParameters ) ) ];
             } );
 
-            // Defaults for the parameter parameters.
+            // Defaults for the parameters to send with the events. Values from `eventParameters`
+            // are sent to each node. `eventNodeParameters` contains additional values to send to
+            // specific nodes.
 
             eventParameters = eventParameters || [];
             eventNodeParameters = eventNodeParameters || {};
