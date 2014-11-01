@@ -1,0 +1,43 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<div id="chatWindow">
+  		<div id="chatContent" style="background: white; height: 300px; width: 300px;"></div>
+  		<textarea id="chatInput" rows="1" style="width:100%" />
+	</div>
+	<div id="login">
+		<input type="text" name="username" id="username" placeholder="login" />
+	</div>
+</body>
+	<script>
+		var sceneId = vwf_view.kernel.find( "", "/" );
+		$('#chatInput').keydown(function(e) {
+		  e.stopPropagation();
+		  var code = (e.keyCode ? e.keyCode : e.which);
+		  if (code == 13) { //Enter
+		  	var playerName = $('#username').val();
+		    vwf_view.kernel.callMethod( sceneId, "sendMessage", [ playerName, $(this).val() ]);
+		  }
+		}).keyup(function(e) {
+		  e.stopPropagation();
+		  var code = (e.keyCode ? e.keyCode : e.which);
+		  if (code == 13) { //Enter
+		    $(this).val('');
+		   
+		  }
+		});
+
+		vwf_view.calledMethod = function (nodeId, methodName, methodParameters) {
+		  if (nodeId == sceneId ) {
+		    switch (methodName) {
+		      case "sendMessage":
+		        $('#chatContent').append( "<span><b>" + methodParameters[0] + ": " + methodParameters[1] + "</b><br/></span>" );
+		        break;
+		    }
+		  }
+		}
+
+	</script>
+</html>
