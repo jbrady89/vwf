@@ -18,6 +18,7 @@
 		  var code = (e.keyCode ? e.keyCode : e.which);
 		  if (code == 13) { //Enter
 		  	var playerName = $('#username').val();
+		  	// send message to clients
 		    vwf_view.kernel.callMethod( sceneId, "sendMessage", [ playerName, $(this).val() ]);
 		  }
 		}).keyup(function(e) {
