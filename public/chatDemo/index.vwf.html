@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title></title>
+	<title>VWF Chat</title>
 </head>
 <body>
 	<div id="chatWindow">
@@ -12,7 +12,7 @@
 	</div>
 </body>
 	<script>
-		var sceneId = vwf_view.kernel.find( "", "/" );
+		var sceneId = vwf_view.kernel.find( "", "/" )[0];
 		$('#chatInput').keydown(function(e) {
 		  e.stopPropagation();
 		  var code = (e.keyCode ? e.keyCode : e.which);
